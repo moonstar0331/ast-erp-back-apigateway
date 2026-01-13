@@ -1,0 +1,423 @@
+server:
+  port: 8000
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.cloud.loadbalancer: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      enabled: true
+    info:
+      enabled: true
+
+spring:
+  application:
+    name: gateway-service
+  config:
+    activate:
+      on-profile: default
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
+      routes:
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/api/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/api/join
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/api/reissue
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/**
+            - Method=GET,POST,PUT,DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth-service/api/login/github
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth-service/api/auth/github/callback
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post-service/api/post/recommend
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: post-service
+          uri: lb://post-service
+          predicates:
+            - Path=/post-service/api/post/list
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post-service/api/post/my
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: post-service
+          uri: lb://post-service
+          predicates:
+            - Path=/post-service/api/post
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post-service/api/post
+            - Method=POST,PUT,DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post-service/api/post/status
+            - Method=PUT
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post-service/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/send
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/api/chat/rooms
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/api/chat/createroom
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/api/chat
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/ws-stomp
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/sub/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/chat-service/pub/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+
+        - id: profile-service
+          uri: lb://PROFILE-SERVICE
+          predicates:
+            - Path=/profile-service/api/myprofile
+            - Method=GET,POST,PUT,DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/list
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/recommend
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/stacks
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/simpleInfo
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/enableUsers
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/schedule
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/profile/schedule
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/profile-service/api/myprofile/schedule
+            - Method=DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: profile-service
+          uri: lb://PROFILE-SERVICE
+          predicates:
+            - Path=/profile-service/api/profile/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/profile-service/(?<segment>.*), /$\{segment}
+
+        - id: notification-service
+          uri: lb://NOTIFY-SERVICE
+          predicates:
+            - Path=/notification-service/api/notification/my
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/notification-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: notification-service
+          uri: lb://NOTIFY-SERVICE
+          predicates:
+            - Path=/notification-service/api/notification/check
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/notification-service/(?<segment>.*), /$\{segment}
+
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/apply
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/send
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/receive
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/accept
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/reject
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/status
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/my
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: mentoring-service
+          uri: lb://MENTORING-SERVICE
+          predicates:
+            - Path=/mentoring-service/api/mentoring/record
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/mentoring-service/(?<segment>.*), /$\{segment}
+
+        - id: matching-service
+          uri: lb://matching-service
+          predicates:
+            - Path=/matching-service/api/matching
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/matching-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: matching-service
+          uri: lb://matching-service
+          predicates:
+            - Path=/matching-service/api/matching/search
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/matching-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka

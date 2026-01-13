@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: kubernetes
+  cloud:
+    config:
+      enabled: false
+    kubernetes:
+      enabled: true
+      config:
+        enabled: true
+        name: gateway-config
+        namespace: default
+        paths: /app/config/application.yaml
+      loadbalancer:
+        mode: service
