@@ -17,6 +17,15 @@ management:
     info:
       enabled: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: auth-service
+        url: /auth-service/v3/api-docs
+      - name: common-service
+        url: /common-service/v3/api-docs
+
 spring:
   application:
     name: gateway-service
@@ -25,6 +34,18 @@ spring:
       on-profile: default
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowedCredentials: true
       discovery:
         locator:
           enabled: true
@@ -39,113 +60,18 @@ spring:
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/auth-service/api/login
-            - Method=POST
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
-        - id: auth-service
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth-service/api/join
-            - Method=POST
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
-        - id: auth-service
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth-service/api/reissue
-            - Method=POST
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
-        - id: auth-service
-          uri: lb://AUTH-SERVICE
-          predicates:
             - Path=/auth-service/**
-            - Method=GET,POST,PUT,DELETE
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth-service/api/login/github
-            - Method=GET
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth-service/api/auth/github/callback
-            - Method=GET
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+            - RewritePath=/auth-service/(?<segment>.*), /${segment}
 
-        - id: post-service
-          uri: lb://POST-SERVICE
+        - id: common-service
+          uri: lb://COMMON-SERVICE
           predicates:
-            - Path=/post-service/api/post/recommend
-            - Method=GET
+            - Path=/common-service/**
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
-        - id: post-service
-          uri: lb://post-service
-          predicates:
-            - Path=/post-service/api/post/list
-            - Method=GET
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
-        - id: post-service
-          uri: lb://POST-SERVICE
-          predicates:
-            - Path=/post-service/api/post/my
-            - Method=GET
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
-        - id: post-service
-          uri: lb://post-service
-          predicates:
-            - Path=/post-service/api/post
-            - Method=GET
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
-        - id: post-service
-          uri: lb://POST-SERVICE
-          predicates:
-            - Path=/post-service/api/post
-            - Method=POST,PUT,DELETE
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
-        - id: post-service
-          uri: lb://POST-SERVICE
-          predicates:
-            - Path=/post-service/api/post/status
-            - Method=PUT
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
-        - id: post-service
-          uri: lb://POST-SERVICE
-          predicates:
-            - Path=/post-service/**
-            - Method=GET
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+            - RewritePath=/common-service/(?<segment>.*), /$\{segment}
 
         - id: chat-service
           uri: lb://CHAT-SERVICE

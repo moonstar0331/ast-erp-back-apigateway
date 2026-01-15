@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Slf4j
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
@@ -20,6 +22,12 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     public static class Config {}
 
     Environment env;
+
+    private static final List<String> WHITE_LIST = List.of(
+            "/auth-service/api/login",
+            "/auth-service/api/join",
+            "/auth-service/api/reissue"
+    );
 
     public AuthorizationHeaderFilter(Environment env) {
         super(Config.class);
@@ -30,6 +38,16 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     public GatewayFilter apply(Config config) {
         return (((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            String path = request.getURI().getPath();
+
+            // 화이트리스트 경로면 인증 스킵
+            if (WHITE_LIST.stream().anyMatch(path::startsWith)) {
+                return chain.filter(exchange);
+            }
+
+            if (path.contains("swagger") || path.contains("api-docs")) {
+                return chain.filter(exchange);
+            }
 
             if(!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
