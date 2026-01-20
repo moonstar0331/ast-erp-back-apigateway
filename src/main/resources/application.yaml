@@ -25,6 +25,8 @@ springdoc:
         url: /auth-service/v3/api-docs
       - name: common-service
         url: /common-service/v3/api-docs
+      - name: board-service
+        url: /board-service/v3/api-docs
 
 spring:
   application:
@@ -72,6 +74,14 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/common-service/(?<segment>.*), /$\{segment}
+
+        - id: board-service
+          uri: lb://BOARD-SERVICE
+          predicates:
+            - Path=/board-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/board-service/(?<segment>.*), /$\{segment}
 
 eureka:
   instance:
