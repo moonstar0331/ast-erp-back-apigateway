@@ -45,7 +45,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
                 return chain.filter(exchange);
             }
 
-            if (path.contains("swagger") || path.contains("api-docs")) {
+            // Swagger 요청이면 인증 스킵
+            String referer = request.getHeaders().getFirst("Referer");
+            if (path.contains("swagger") || path.contains("api-docs") || path.contains("webjars") ||
+                    (referer != null && referer.contains("swagger-ui"))) {
                 return chain.filter(exchange);
             }
 

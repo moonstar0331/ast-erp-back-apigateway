@@ -3,8 +3,8 @@ server:
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.cloud.loadbalancer: TRACE
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.loadbalancer: INFO
 
 management:
   endpoints:
@@ -58,6 +58,7 @@ spring:
             baseMessage: Spring Cloud Gateway Global Filter
             preLogger: true
             postLogger: true
+        - name: AuthorizationHeaderFilter
       routes:
         - id: auth-service
           uri: lb://AUTH-SERVICE
