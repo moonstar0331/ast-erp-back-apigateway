@@ -41,7 +41,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             String path = request.getURI().getPath();
 
             // 화이트리스트 경로면 인증 스킵
-            if (WHITE_LIST.stream().anyMatch(path::startsWith)) {
+            if (WHITE_LIST.stream().anyMatch(white -> white.contains(path))) {
                 return chain.filter(exchange);
             }
 
